@@ -56,8 +56,9 @@ def booking(product_id):
         email = request.form.get('email', '').strip()
         phone = request.form.get('phone', '').strip()
         address = request.form.get('address', '').strip()
+        instagram_id = request.form.get('instagram_id', '').strip()
 
-        if not all([name, email, phone, address]):
+        if not all([name, email, phone, address, instagram_id]):
             flash('Please fill in all required fields.', 'danger')
             return render_template('customer/booking.html', product=product)
 

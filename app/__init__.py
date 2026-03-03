@@ -42,6 +42,21 @@ def create_app(config_class=Config):
         from app import models  # noqa: F401
         db.create_all()
 
+    # ── Template context: inject site branding globally ───
+    @app.context_processor
+    def inject_site_settings():
+        """Make site_name and site_logo_url available in all templates."""
+        try:
+            from app.models import SiteSetting
+            from flask import url_for
+            name = SiteSetting.get('site_name', 'The Girlhub')
+            logo = SiteSetting.get('site_logo', '')
+            logo_url = url_for('static', filename='uploads/' + logo) if logo else ''
+        except Exception:
+            name = 'The Girlhub'
+            logo_url = ''
+        return {'site_name': name, 'site_logo_url': logo_url}
+
     # ── CLI: create admin (safe way to add admins) ────────
     @app.cli.command('create-admin')
     def create_admin():

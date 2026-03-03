@@ -31,6 +31,7 @@ def create_order(customer, product, form_data, reference_file=None):
         customer_email=form_data.get('email', '').strip(),
         customer_phone=form_data.get('phone', '').strip(),
         customer_address=form_data.get('address', '').strip(),
+        customer_instagram=form_data.get('instagram_id', '').strip(),
         preferences=form_data.get('preferences', '').strip(),
         reference_image=reference_image,
         total_price=total_price,

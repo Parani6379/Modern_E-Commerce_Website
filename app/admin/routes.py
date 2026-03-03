@@ -305,6 +305,7 @@ def order_add():
         product_id = request.form.get('product_id', type=int)
         amount = request.form.get('amount', 0, type=float)
         preferences = request.form.get('preferences', '').strip()
+        instagram_id = request.form.get('instagram_id', '').strip()
 
         if not all([customer_name, customer_email, customer_phone]):
             flash('Customer name, email, and phone are required.', 'danger')
@@ -318,6 +319,7 @@ def order_add():
             customer_email=customer_email,
             customer_phone=customer_phone,
             customer_address=customer_address,
+            customer_instagram=instagram_id,
             preferences=preferences,
             total_price=amount,
             status='enquiry',
@@ -447,12 +449,31 @@ def settings():
         instagram_url = request.form.get('instagram_url', '').strip()
         SiteSetting.set('instagram_url', instagram_url)
 
+        site_name = request.form.get('site_name', '').strip()
+        if site_name:
+            SiteSetting.set('site_name', site_name)
+
+        # Handle site logo upload
+        site_logo_file = request.files.get('site_logo')
+        if site_logo_file and site_logo_file.filename:
+            logo_filename = save_uploaded_file(site_logo_file)
+            if logo_filename:
+                old_logo = SiteSetting.get('site_logo', '')
+                if old_logo:
+                    delete_file(old_logo)
+                SiteSetting.set('site_logo', logo_filename)
+
         db.session.commit()
         flash('Settings updated!', 'success')
         return redirect(url_for('admin.settings'))
 
     instagram_url = SiteSetting.get('instagram_url', '')
-    return render_template('admin/settings.html', instagram_url=instagram_url)
+    site_name = SiteSetting.get('site_name', 'The Girlhub')
+    site_logo_filename = SiteSetting.get('site_logo', '')
+    return render_template('admin/settings.html',
+                           instagram_url=instagram_url,
+                           site_name=site_name,
+                           site_logo_filename=site_logo_filename)
 
 
 # ══════════════════════════════════════════════════════════

@@ -23,6 +23,14 @@
                 <p><span class="text-gray-500 w-20 inline-block">Email:</span> {{ order.customer_email }}</p>
                 <p><span class="text-gray-500 w-20 inline-block">Phone:</span> {{ order.customer_phone }}</p>
                 <p><span class="text-gray-500 w-20 inline-block">Address:</span> {{ order.customer_address }}</p>
+                {% if order.customer_instagram %}
+                <p>
+                    <span class="text-gray-500 w-20 inline-block"><i
+                            class="fa-brands fa-instagram text-pink-500 mr-1"></i>Insta:</span>
+                    <a href="https://instagram.com/{{ order.customer_instagram }}" target="_blank"
+                        class="text-pink-500 hover:underline font-medium">@{{ order.customer_instagram }}</a>
+                </p>
+                {% endif %}
                 {% if order.preferences %}
                 <p><span class="text-gray-500 w-20 inline-block">Notes:</span> {{ order.preferences }}</p>
                 {% endif %}

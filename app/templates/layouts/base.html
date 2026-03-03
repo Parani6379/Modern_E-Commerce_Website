@@ -155,9 +155,14 @@
             <div class="flex items-center justify-between h-16">
                 <!-- Logo -->
                 <a href="{{ url_for('customer.home') }}" class="flex items-center space-x-2 group">
+                    {% if site_logo_url %}
+                    <img src="{{ site_logo_url }}" alt="{{ site_name }} Logo"
+                        class="h-9 w-auto object-contain group-hover:scale-105 transition-transform rounded">
+                    {% else %}
                     <span class="text-2xl"><i
                             class="fa-solid fa-heart-pulse text-primary-500 group-hover:scale-110 transition-transform"></i></span>
-                    <span class="text-xl font-extrabold gradient-text">The Girlhub</span>
+                    {% endif %}
+                    <span class="text-xl font-extrabold gradient-text">{{ site_name }}</span>
                 </a>
 
                 <!-- Desktop links -->
@@ -256,7 +261,7 @@
     <!-- ═══════════════════ FOOTER ═══════════════════ -->
     <footer class="border-t border-gray-200 dark:border-gray-700 py-8 mt-12">
         <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
-            <p>&copy; 2026 The Girlhub. All rights reserved.</p>
+            <p>&copy; 2026 {{ site_name }}. All rights reserved.</p>
             <p class="mt-1">Built with <i class="fa-solid fa-heart text-primary-500"></i> using Flask &amp; Tailwind CSS
             </p>
         </div>

@@ -79,6 +79,38 @@
                 <i class="fa-solid fa-globe text-secondary-500"></i> Site Settings
             </h2>
 
+            <!-- Site Name -->
+            <div>
+                <label class="block text-sm font-semibold mb-1">
+                    <i class="fa-solid fa-signature text-secondary-500 mr-1"></i> Site / Brand Name
+                </label>
+                <input type="text" name="site_name" value="{{ site_name or 'The Girlhub' }}"
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition"
+                    placeholder="The Girlhub">
+                <p class="text-xs text-gray-400 mt-1">This name appears in the header and footer of every page.</p>
+            </div>
+
+            <!-- Site Logo -->
+            <div>
+                <label class="block text-sm font-semibold mb-1">
+                    <i class="fa-solid fa-image text-secondary-500 mr-1"></i> Site Logo
+                    <span class="text-gray-400 font-normal">(optional)</span>
+                </label>
+                {% if site_logo_filename %}
+                <div class="flex items-center gap-4 mb-3">
+                    <img src="{{ url_for('static', filename='uploads/' + site_logo_filename) }}"
+                        class="h-12 rounded-lg border border-gray-200 dark:border-gray-700 object-contain bg-white dark:bg-gray-800 p-1"
+                        alt="Current Logo">
+                    <span class="text-xs text-gray-400">Current logo</span>
+                </div>
+                {% endif %}
+                <input type="file" name="site_logo" accept="image/*"
+                    class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900/20 dark:file:text-primary-400 transition">
+                <p class="text-xs text-gray-400 mt-1">Upload a PNG/JPG logo. Replaces the default icon in the header.
+                    Leave blank to keep the current logo.</p>
+            </div>
+
+            <!-- Instagram URL -->
             <div>
                 <label class="block text-sm font-semibold mb-1">
                     <i class="fa-brands fa-instagram text-pink-500 mr-1"></i> Instagram Profile URL

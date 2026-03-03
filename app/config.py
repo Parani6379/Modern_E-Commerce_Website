@@ -24,7 +24,7 @@ class Config:
     MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'thegirlhub.handcrafted@gmail.com')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'gucpuvqweqwljyls')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'jmthbktyriudnkyl')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'thegirlhub.handcrafted@gmail.com')
 
     # ── Owner email (receives order notifications) ────────
