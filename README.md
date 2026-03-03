@@ -1,6 +1,6 @@
-# 🌸 The Girlhub — Owner's Guide
+# 🌸 The Ecom — Owner's Guide
 
-Welcome to **The Girlhub**! This guide will help you manage your online store.
+Welcome to **The Ecom**! This guide will help you manage your online store.
 
 ---
 
