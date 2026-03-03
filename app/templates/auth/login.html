@@ -1,0 +1,75 @@
+{% extends "layouts/base.html" %}
+{% block title %}Sign In — GirlHub{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-md fade-up">
+
+        <!-- Card -->
+        <div class="glass rounded-2xl shadow-xl p-8 space-y-6">
+
+            <!-- Header -->
+            <div class="text-center">
+                <div
+                    class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary-400 to-secondary-500 mb-4">
+                    <i class="fa-solid fa-lock text-white text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold gradient-text">Welcome Back</h1>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Sign in to your account</p>
+            </div>
+
+            <!-- Form -->
+            <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-5">
+                {{ form.hidden_tag() }}
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-semibold mb-1">Email</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                            <i class="fa-solid fa-envelope"></i>
+                        </span>
+                        {{ form.email(class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300
+                        dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400
+                        focus:border-transparent outline-none transition", placeholder="you@example.com", id="email") }}
+                    </div>
+                    {% for error in form.email.errors %}
+                    <p class="text-red-500 text-xs mt-1"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ error }}
+                    </p>
+                    {% endfor %}
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="password" class="block text-sm font-semibold mb-1">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                            <i class="fa-solid fa-key"></i>
+                        </span>
+                        {{ form.password(class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300
+                        dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400
+                        focus:border-transparent outline-none transition", placeholder="••••••••", id="password") }}
+                    </div>
+                    {% for error in form.password.errors %}
+                    <p class="text-red-500 text-xs mt-1"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ error }}
+                    </p>
+                    {% endfor %}
+                </div>
+
+                <!-- Submit -->
+                <button type="submit"
+                    class="w-full py-3 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+                    <i class="fa-solid fa-right-to-bracket mr-2"></i>Sign In
+                </button>
+            </form>
+
+            <!-- Footer -->
+            <p class="text-center text-sm text-gray-500 dark:text-gray-400">
+                Don't have an account?
+                <a href="{{ url_for('auth.register') }}"
+                    class="text-primary-500 hover:text-primary-600 font-semibold transition">Create one</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

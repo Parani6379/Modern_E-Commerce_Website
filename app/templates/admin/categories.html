@@ -1,0 +1,48 @@
+{% extends "layouts/admin_base.html" %}
+{% block title %}Categories — Admin | GirlHub{% endblock %}
+
+{% block admin_content %}
+<div class="fade-up max-w-2xl space-y-6">
+    <h1 class="text-3xl font-bold gradient-text">Categories</h1>
+
+    <!-- Add Category -->
+    <form method="POST" class="glass rounded-2xl p-5 flex gap-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="relative flex-1">
+            <i class="fa-solid fa-tag absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" name="name" required placeholder="New category name"
+                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition">
+        </div>
+        <button type="submit"
+            class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold hover:shadow-lg transition">
+            <i class="fa-solid fa-plus mr-1"></i> Add
+        </button>
+    </form>
+
+    <!-- List -->
+    <div class="glass rounded-2xl divide-y divide-gray-200 dark:divide-gray-700 overflow-hidden">
+        {% for cat in categories %}
+        <div class="flex items-center justify-between px-5 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-8 h-8 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-500">
+                    <i class="fa-solid fa-tag text-sm"></i>
+                </div>
+                <span class="font-medium">{{ cat.name }}</span>
+                <span class="text-xs text-gray-400">({{ cat.products.count() }} products)</span>
+            </div>
+            <form method="POST" action="{{ url_for('admin.category_delete', cat_id=cat.id) }}"
+                onsubmit="return confirm('Delete this category?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="text-red-500 hover:text-red-600 transition"><i class="fa-solid fa-trash"></i></button>
+            </form>
+        </div>
+        {% else %}
+        <div class="px-5 py-12 text-center text-gray-400">
+            <i class="fa-solid fa-tags text-4xl mb-3"></i>
+            <p>No categories yet</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

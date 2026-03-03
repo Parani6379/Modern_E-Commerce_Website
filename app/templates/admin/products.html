@@ -1,0 +1,111 @@
+{% extends "layouts/admin_base.html" %}
+{% block title %}Products — Admin | GirlHub{% endblock %}
+
+{% block admin_content %}
+<div class="fade-up space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 class="text-3xl font-bold gradient-text">Products</h1>
+        <a href="{{ url_for('admin.product_add') }}"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold shadow hover:shadow-lg hover:-translate-y-0.5 transition-all">
+            <i class="fa-solid fa-plus"></i> Add Product
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <form class="flex flex-col sm:flex-row gap-3" method="GET">
+        <div class="relative flex-1">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" name="search" value="{{ search }}" placeholder="Search products..."
+                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition">
+        </div>
+        <select name="category"
+            class="px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition">
+            <option value="0">All Categories</option>
+            {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if category_id==cat.id %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit"
+            class="px-5 py-2.5 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-medium transition">
+            <i class="fa-solid fa-filter mr-1"></i> Filter
+        </button>
+    </form>
+
+    <!-- Product Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        {% for product in products.items %}
+        <div class="glass rounded-2xl overflow-hidden card-hover group">
+            <!-- Image -->
+            <div class="aspect-square bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                {% if product.primary_image %}
+                <img src="{{ url_for('static', filename='uploads/' + product.primary_image) }}" alt="{{ product.name }}"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-600">
+                    <i class="fa-solid fa-image text-5xl"></i>
+                </div>
+                {% endif %}
+            </div>
+            <!-- Info -->
+            <div class="p-4 space-y-2">
+                <h3 class="font-semibold truncate">{{ product.name }}</h3>
+                <div class="flex items-center justify-between">
+                    <span class="text-lg font-bold text-primary-500">₹{{ "%.2f"|format(product.price) }}</span>
+                    <span class="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700">Stock: {{ product.stock
+                        }}</span>
+                </div>
+                {% if product.category %}
+                <span class="text-xs text-gray-500"><i class="fa-solid fa-tag mr-1"></i>{{ product.category.name
+                    }}</span>
+                {% endif %}
+                <!-- Actions -->
+                <div class="flex gap-2 pt-2">
+                    <a href="{{ url_for('admin.product_edit', product_id=product.id) }}"
+                        class="flex-1 text-center py-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-900/50 transition">
+                        <i class="fa-solid fa-pen-to-square mr-1"></i>Edit
+                    </a>
+                    <form method="POST" action="{{ url_for('admin.product_delete', product_id=product.id) }}"
+                        onsubmit="return confirm('Delete this product?')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button
+                            class="py-2 px-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/50 transition">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-span-full text-center py-16 text-gray-400">
+            <i class="fa-solid fa-box-open text-5xl mb-4"></i>
+            <p class="text-lg">No products found</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if products.pages > 1 %}
+    <div class="flex justify-center gap-2 pt-4">
+        {% if products.has_prev %}
+        <a href="?page={{ products.prev_num }}&search={{ search }}&category={{ category_id }}"
+            class="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition">←
+            Prev</a>
+        {% endif %}
+        {% for p in products.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+        {% if p %}
+        <a href="?page={{ p }}&search={{ search }}&category={{ category_id }}"
+            class="px-4 py-2 rounded-lg transition {% if p == products.page %}bg-primary-500 text-white{% else %}bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700{% endif %}">{{
+            p }}</a>
+        {% else %}
+        <span class="px-2 py-2 text-gray-400">…</span>
+        {% endif %}
+        {% endfor %}
+        {% if products.has_next %}
+        <a href="?page={{ products.next_num }}&search={{ search }}&category={{ category_id }}"
+            class="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition">Next
+            →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

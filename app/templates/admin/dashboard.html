@@ -1,0 +1,239 @@
+{% extends "layouts/admin_base.html" %}
+{% block title %}Dashboard — Admin | The Girlhub{% endblock %}
+
+{% block admin_content %}
+<div class="fade-up space-y-8">
+
+    <!-- Header -->
+    <div>
+        <h1 class="text-3xl font-bold gradient-text">Dashboard</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">Welcome back, {{ current_user.username }}!</p>
+    </div>
+
+    <!-- ── Stat Cards ── -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+        <div class="glass rounded-2xl p-5 card-hover">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Total
+                    Orders</span>
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+            </div>
+            <p class="text-2xl font-bold">{{ stats.total_orders }}</p>
+        </div>
+
+        <div class="glass rounded-2xl p-5 card-hover">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Paid
+                    Orders</span>
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center text-white">
+                    <i class="fa-solid fa-credit-card"></i>
+                </div>
+            </div>
+            <p class="text-2xl font-bold text-indigo-500">{{ stats.paid_orders }}</p>
+        </div>
+
+        <div class="glass rounded-2xl p-5 card-hover">
+            <div class="flex items-center justify-between mb-3">
+                <span
+                    class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pending</span>
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+            </div>
+            <p class="text-2xl font-bold text-amber-500">{{ stats.pending_orders }}</p>
+            <p class="text-xs text-gray-400 mt-1">Enquiry + Ordered</p>
+        </div>
+
+        <div class="glass rounded-2xl p-5 card-hover">
+            <div class="flex items-center justify-between mb-3">
+                <span
+                    class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Delivered</span>
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center text-white">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+            <p class="text-2xl font-bold text-emerald-500">{{ stats.delivered_orders }}</p>
+        </div>
+
+        <div class="glass rounded-2xl p-5 card-hover">
+            <div class="flex items-center justify-between mb-3">
+                <span
+                    class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Revenue</span>
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center text-white">
+                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                </div>
+            </div>
+            <p class="text-2xl font-bold">&#8377;{{ "%.2f"|format(stats.total_revenue) }}</p>
+        </div>
+    </div>
+
+    <!-- ── Charts ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass rounded-2xl p-6">
+            <h2 class="text-lg font-semibold mb-4"><i class="fa-solid fa-chart-area mr-2 text-primary-500"></i>Revenue
+                Overview</h2>
+            <canvas id="revenueChart" height="220"></canvas>
+        </div>
+        <div class="glass rounded-2xl p-6">
+            <h2 class="text-lg font-semibold mb-4"><i class="fa-solid fa-chart-bar mr-2 text-amber-500"></i>Monthly
+                Expenses</h2>
+            <canvas id="expenseChart" height="220"></canvas>
+        </div>
+    </div>
+
+    <!-- ── Order Summary ── -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        <div class="glass rounded-2xl p-4 text-center card-hover">
+            <div
+                class="w-10 h-10 mx-auto rounded-full bg-yellow-100 dark:bg-yellow-900/40 flex items-center justify-center mb-2">
+                <i class="fa-solid fa-magnifying-glass text-yellow-600 dark:text-yellow-400"></i>
+            </div>
+            <p class="text-xl font-bold">{{ stats.enquiry_orders }}</p>
+            <p class="text-xs text-gray-500">Enquiry</p>
+        </div>
+        <div class="glass rounded-2xl p-4 text-center card-hover">
+            <div
+                class="w-10 h-10 mx-auto rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center mb-2">
+                <i class="fa-solid fa-cart-shopping text-blue-600 dark:text-blue-400"></i>
+            </div>
+            <p class="text-xl font-bold">{{ stats.ordered_orders }}</p>
+            <p class="text-xs text-gray-500">Ordered</p>
+        </div>
+        <div class="glass rounded-2xl p-4 text-center card-hover">
+            <div
+                class="w-10 h-10 mx-auto rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center mb-2">
+                <i class="fa-solid fa-credit-card text-indigo-600 dark:text-indigo-400"></i>
+            </div>
+            <p class="text-xl font-bold">{{ stats.paid_orders }}</p>
+            <p class="text-xs text-gray-500">Paid</p>
+        </div>
+        <div class="glass rounded-2xl p-4 text-center card-hover">
+            <div
+                class="w-10 h-10 mx-auto rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center mb-2">
+                <i class="fa-solid fa-truck-fast text-purple-600 dark:text-purple-400"></i>
+            </div>
+            <p class="text-xl font-bold">{{ stats.dispatched_orders }}</p>
+            <p class="text-xs text-gray-500">Dispatched</p>
+        </div>
+        <div class="glass rounded-2xl p-4 text-center card-hover">
+            <div
+                class="w-10 h-10 mx-auto rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center mb-2">
+                <i class="fa-solid fa-circle-check text-emerald-600 dark:text-emerald-400"></i>
+            </div>
+            <p class="text-xl font-bold">{{ stats.delivered_orders }}</p>
+            <p class="text-xs text-gray-500">Delivered</p>
+        </div>
+    </div>
+
+    <!-- ── Recent Orders Table ── -->
+    <div class="glass rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold"><i
+                    class="fa-solid fa-clock-rotate-left mr-2 text-secondary-500"></i>Recent Orders</h2>
+            <a href="{{ url_for('admin.orders') }}"
+                class="text-primary-500 hover:text-primary-600 text-sm font-medium">View All &rarr;</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr
+                        class="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                        <th class="pb-3 font-semibold">Order ID</th>
+                        <th class="pb-3 font-semibold">Customer</th>
+                        <th class="pb-3 font-semibold">Product</th>
+                        <th class="pb-3 font-semibold">Amount</th>
+                        <th class="pb-3 font-semibold">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                    {% for order in recent_orders %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                        <td class="py-3 font-medium">#{{ order.id }}</td>
+                        <td class="py-3">{{ order.customer_name }}</td>
+                        <td class="py-3">{{ order.product.name if order.product else '---' }}</td>
+                        <td class="py-3 font-semibold">&#8377;{{ "%.2f"|format(order.total_price) }}</td>
+                        <td class="py-3"><span class="badge badge-{{ order.status }}"><i
+                                    class="fa-solid fa-circle text-[6px]"></i> {{ order.status|title }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="py-8 text-center text-gray-400">No orders yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+    var revenueData = {{ revenue_data | tojson }};
+    var expenseData = {{ expense_data | tojson }};
+</script>
+<script>
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var isDark = document.getElementById('html-root').classList.contains('dark');
+    var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+    var textColor = isDark ? '#9ca3af' : '#6b7280';
+
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Revenue',
+                data: revenueData,
+                borderColor: '#ec4899',
+                backgroundColor: 'rgba(236,72,153,0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#ec4899'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: textColor } } },
+            scales: {
+                x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                y: { ticks: { color: textColor }, grid: { color: gridColor }, beginAtZero: true }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('expenseChart'), {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Expenses',
+                data: expenseData,
+                backgroundColor: 'rgba(245,158,11,0.6)',
+                borderColor: '#f59e0b',
+                borderWidth: 1,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: textColor } } },
+            scales: {
+                x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                y: { ticks: { color: textColor }, grid: { color: gridColor }, beginAtZero: true }
+            }
+        }
+    });
+</script>
+{% endblock %}

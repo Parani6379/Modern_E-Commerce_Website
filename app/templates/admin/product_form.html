@@ -1,0 +1,307 @@
+{% extends "layouts/admin_base.html" %}
+{% block title %}{{ 'Edit' if product else 'Add' }} Product — Admin | The Girlhub{% endblock %}
+
+{% block admin_content %}
+<div class="fade-up max-w-3xl space-y-6">
+    <div class="flex items-center gap-3">
+        <a href="{{ url_for('admin.products') }}" class="text-gray-400 hover:text-primary-500 transition"><i
+                class="fa-solid fa-arrow-left text-lg"></i></a>
+        <h1 class="text-3xl font-bold gradient-text">{{ 'Edit' if product else 'Add' }} Product</h1>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="glass rounded-2xl p-6 space-y-5" id="product-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- Name -->
+        <div>
+            <label class="block text-sm font-semibold mb-1">Product Name *</label>
+            <input type="text" name="name" value="{{ product.name if product else '' }}" required
+                class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition"
+                placeholder="Enter product name">
+        </div>
+
+        <!-- Description -->
+        <div>
+            <label class="block text-sm font-semibold mb-1">Description</label>
+            <textarea name="description" rows="4"
+                class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition resize-y"
+                placeholder="Describe the product...">{{ product.description if product else '' }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <!-- Price -->
+            <div>
+                <label class="block text-sm font-semibold mb-1">Base Price (&#8377;) *</label>
+                <input type="number" name="price" step="0.01" min="0" value="{{ product.price if product else 0 }}"
+                    required
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition">
+            </div>
+            <!-- Stock -->
+            <div>
+                <label class="block text-sm font-semibold mb-1">Stock *</label>
+                <input type="number" name="stock" min="0" value="{{ product.stock if product else 0 }}" required
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition">
+            </div>
+            <!-- Category -->
+            <div>
+                <label class="block text-sm font-semibold mb-1">Category</label>
+                <select name="category_id" id="category-select"
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition">
+                    <option value="">— None —</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if product and product.category_id==cat.id %}selected{% endif %}
+                        data-name="{{ cat.name }}">{{
+                        cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- ═══════════ DRESS-SPECIFIC FIELDS ═══════════ -->
+        <div id="dress-section"
+            class="hidden space-y-5 p-5 rounded-xl border-2 border-dashed border-purple-300 dark:border-purple-700 bg-purple-50/30 dark:bg-purple-900/10">
+            <h3 class="font-bold flex items-center gap-2 text-purple-600 dark:text-purple-400">
+                <i class="fa-solid fa-shirt"></i> Dress Configuration
+            </h3>
+
+            <!-- Dress Type -->
+            <div>
+                <label class="block text-sm font-semibold mb-2">Dress Type *</label>
+                <div class="flex gap-3">
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="dress_type" value="adult" class="hidden peer" {% if product and
+                            product.dress_type=='adult' %}checked{% endif %}>
+                        <div
+                            class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-center transition-all
+                            peer-checked:border-purple-500 peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/20">
+                            <i class="fa-solid fa-person text-2xl mb-1 text-purple-500"></i>
+                            <p class="font-semibold text-sm">Adult</p>
+                            <p class="text-xs text-gray-400">Size-based pricing</p>
+                        </div>
+                    </label>
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="dress_type" value="child" class="hidden peer" {% if product and
+                            product.dress_type=='child' %}checked{% endif %}>
+                        <div
+                            class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-center transition-all
+                            peer-checked:border-purple-500 peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/20">
+                            <i class="fa-solid fa-child text-2xl mb-1 text-purple-500"></i>
+                            <p class="font-semibold text-sm">Child</p>
+                            <p class="text-xs text-gray-400">Age-based pricing</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Adult Sizes -->
+            <div id="adult-sizes" class="hidden space-y-3">
+                <label class="block text-sm font-semibold">Size-based Pricing</label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {% set sp = product.get_size_prices() if product else {} %}
+                    {% for size in ['S', 'M', 'L', 'XL'] %}
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">{{ size }}</label>
+                        <input type="number" name="size_price_{{ size }}" step="0.01" min="0"
+                            value="{{ sp.get(size, '') }}"
+                            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-400 outline-none transition text-sm"
+                            placeholder="&#8377; price">
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Child Age Groups -->
+            <div id="child-ages" class="hidden space-y-3">
+                <label class="block text-sm font-semibold">Age-based Pricing</label>
+                <div id="age-groups-container" class="space-y-2">
+                    {% if product and product.dress_type == 'child' %}
+                    {% for ag, ap in product.get_age_prices().items() %}
+                    <div class="flex gap-2 items-center age-group-row">
+                        <input type="text" name="age_group_name" value="{{ ag }}"
+                            class="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-400 outline-none transition text-sm"
+                            placeholder="e.g. 1-3">
+                        <input type="number" name="age_group_price" step="0.01" min="0" value="{{ ap }}"
+                            class="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-400 outline-none transition text-sm"
+                            placeholder="&#8377; price">
+                        <button type="button" onclick="this.parentElement.remove()"
+                            class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-500 flex items-center justify-center hover:bg-red-200 transition text-sm">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                <button type="button" id="add-age-group"
+                    class="text-sm text-purple-500 font-semibold hover:text-purple-600 transition">
+                    <i class="fa-solid fa-plus mr-1"></i>Add Age Group
+                </button>
+            </div>
+        </div>
+
+        <!-- Existing Images -->
+        {% if product and product.get_images() %}
+        <div>
+            <label class="block text-sm font-semibold mb-2">Current Images</label>
+            <div class="flex flex-wrap gap-3">
+                {% for img in product.get_images() %}
+                <div class="relative group">
+                    <img src="{{ url_for('static', filename='uploads/' + img) }}"
+                        class="w-24 h-24 rounded-xl object-cover border-2 border-gray-200 dark:border-gray-600">
+                    <label
+                        class="absolute inset-0 bg-red-500/70 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                        <input type="checkbox" name="remove_images" value="{{ img }}" class="hidden">
+                        <i class="fa-solid fa-trash text-white"></i>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+            <p class="text-xs text-gray-400 mt-1">Hover & click to mark for removal</p>
+        </div>
+        {% endif %}
+
+        <!-- Upload Images -->
+        <div>
+            <label class="block text-sm font-semibold mb-1">{{ 'Add More Images' if product else 'Upload Images'
+                }}</label>
+            <div id="drop-zone"
+                class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center hover:border-primary-400 transition cursor-pointer">
+                <i class="fa-solid fa-cloud-arrow-up text-4xl text-gray-300 dark:text-gray-600 mb-2"></i>
+                <p class="text-sm text-gray-500">Drag & drop images or <span class="text-primary-500 font-medium">click
+                        to browse</span></p>
+                <input type="file" name="images" multiple accept="image/*" class="hidden" id="image-input">
+            </div>
+            <div id="image-preview" class="flex flex-wrap gap-3 mt-3"></div>
+        </div>
+
+        <!-- Submit -->
+        <div class="flex gap-3 pt-2">
+            <button type="submit"
+                class="px-6 py-3 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
+                <i class="fa-solid fa-save mr-2"></i>{{ 'Update' if product else 'Add' }} Product
+            </button>
+            <a href="{{ url_for('admin.products') }}"
+                class="px-6 py-3 rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // ── Image upload / preview ──
+    const dropZone = document.getElementById('drop-zone');
+    const input = document.getElementById('image-input');
+    const preview = document.getElementById('image-preview');
+
+    dropZone.addEventListener('click', () => input.click());
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('border-primary-400'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-primary-400'));
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault(); dropZone.classList.remove('border-primary-400');
+        input.files = e.dataTransfer.files; showPreview();
+    });
+    input.addEventListener('change', showPreview);
+
+    function showPreview() {
+        preview.innerHTML = '';
+        [...input.files].forEach(file => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'w-20 h-20 rounded-xl object-cover border-2 border-primary-300';
+                preview.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Toggle remove checkbox on hover-click
+    document.querySelectorAll('label:has(input[name="remove_images"])').forEach(lbl => {
+        lbl.addEventListener('click', () => {
+            const cb = lbl.querySelector('input');
+            cb.checked = !cb.checked;
+            lbl.closest('.relative').style.opacity = cb.checked ? '0.4' : '1';
+        });
+    });
+
+    // ── Dress Category Detection ──
+    const categorySelect = document.getElementById('category-select');
+    const dressSection = document.getElementById('dress-section');
+    const adultSizes = document.getElementById('adult-sizes');
+    const childAges = document.getElementById('child-ages');
+    const dressRadios = document.querySelectorAll('input[name="dress_type"]');
+
+    function isDressCategory() {
+        const selected = categorySelect.options[categorySelect.selectedIndex];
+        return selected && selected.getAttribute('data-name') &&
+            selected.getAttribute('data-name').toLowerCase() === 'dress';
+    }
+
+    function toggleDressSection() {
+        if (isDressCategory()) {
+            dressSection.classList.remove('hidden');
+            updateDressType();
+        } else {
+            dressSection.classList.add('hidden');
+        }
+    }
+
+    function updateDressType() {
+        const checked = document.querySelector('input[name="dress_type"]:checked');
+        if (checked && checked.value === 'adult') {
+            adultSizes.classList.remove('hidden');
+            childAges.classList.add('hidden');
+        } else if (checked && checked.value === 'child') {
+            childAges.classList.remove('hidden');
+            adultSizes.classList.add('hidden');
+        } else {
+            adultSizes.classList.add('hidden');
+            childAges.classList.add('hidden');
+        }
+    }
+
+    categorySelect.addEventListener('change', toggleDressSection);
+    dressRadios.forEach(r => r.addEventListener('change', updateDressType));
+
+    // Initialize on page load
+    toggleDressSection();
+
+    // ── Dynamic Age Group Rows ──
+    document.getElementById('add-age-group').addEventListener('click', function () {
+        const container = document.getElementById('age-groups-container');
+        const row = document.createElement('div');
+        row.className = 'flex gap-2 items-center age-group-row';
+        row.innerHTML = `
+            <input type="text" name="age_group_name"
+                class="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-400 outline-none transition text-sm"
+                placeholder="e.g. 1-3">
+            <input type="number" name="age_group_price" step="0.01" min="0"
+                class="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-400 outline-none transition text-sm"
+                placeholder="&#8377; price">
+            <button type="button" onclick="this.parentElement.remove()"
+                class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-500 flex items-center justify-center hover:bg-red-200 transition text-sm">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        `;
+        container.appendChild(row);
+    });
+
+    // Add default age groups if none exist and child is selected
+    if (isDressCategory()) {
+        const checked = document.querySelector('input[name="dress_type"]:checked');
+        if (checked && checked.value === 'child') {
+            const container = document.getElementById('age-groups-container');
+            if (container.children.length === 0) {
+                ['1-3', '4-6', '7-10', '11-14'].forEach(ag => {
+                    document.getElementById('add-age-group').click();
+                    const rows = container.querySelectorAll('.age-group-row');
+                    const lastRow = rows[rows.length - 1];
+                    lastRow.querySelector('input[name="age_group_name"]').value = ag;
+                });
+            }
+        }
+    }
+</script>
+{% endblock %}

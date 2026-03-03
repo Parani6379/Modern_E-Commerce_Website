@@ -1,0 +1,331 @@
+{% extends "layouts/base.html" %}
+{% block title %}Book {{ product.name }} — The Girlhub{% endblock %}
+
+{% block content %}
+<div class="bg-mesh min-h-screen">
+    <div class="max-w-3xl mx-auto px-4 py-10 fade-up">
+
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
+            <a href="{{ url_for('customer.home') }}" class="hover:text-primary-500 transition"><i
+                    class="fa-solid fa-house"></i></a>
+            <i class="fa-solid fa-chevron-right text-[8px]"></i>
+            <a href="{{ url_for('customer.product_detail', product_id=product.id) }}"
+                class="hover:text-primary-500 transition">{{ product.name }}</a>
+            <i class="fa-solid fa-chevron-right text-[8px]"></i>
+            <span class="text-gray-800 dark:text-gray-200 font-medium">Book</span>
+        </nav>
+
+        <!-- Progress Steps -->
+        <div class="flex items-center justify-center gap-4 mb-10">
+            <div class="flex items-center gap-2">
+                <div
+                    class="w-9 h-9 rounded-full bg-primary-500 text-white flex items-center justify-center text-sm font-bold shadow-lg shadow-primary-500/30">
+                    1</div>
+                <span class="text-sm font-semibold text-primary-500 hidden sm:inline">Details</span>
+            </div>
+            <div class="w-16 h-0.5 bg-gradient-to-r from-primary-500 to-gray-300 dark:to-gray-600 rounded"></div>
+            <div class="flex items-center gap-2">
+                <div
+                    class="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-400 flex items-center justify-center text-sm font-bold">
+                    2</div>
+                <span class="text-sm font-medium text-gray-400 hidden sm:inline">Confirm</span>
+            </div>
+            <div class="w-16 h-0.5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="flex items-center gap-2">
+                <div
+                    class="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-400 flex items-center justify-center text-sm font-bold">
+                    3</div>
+                <span class="text-sm font-medium text-gray-400 hidden sm:inline">Done</span>
+            </div>
+        </div>
+
+        <!-- Product card -->
+        <div class="glass rounded-2xl p-5 flex items-center gap-5 mb-8 card-hover">
+            <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 shadow-lg">
+                {% if product.primary_image %}
+                <img src="{{ url_for('static', filename='uploads/' + product.primary_image) }}" alt="{{ product.name }}"
+                    class="w-full h-full object-cover">
+                {% else %}
+                <div class="w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-300">
+                    <i class="fa-solid fa-image text-xl"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div class="flex-1 min-w-0">
+                <h3 class="font-bold truncate">{{ product.name }}</h3>
+                <p class="text-2xl font-black gradient-text" id="booking-price">&#8377;{{ "%.2f"|format(product.price)
+                    }}</p>
+            </div>
+            <div
+                class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+                <i class="fa-solid fa-circle-check"></i> Available
+            </div>
+        </div>
+
+        <!-- Booking Form -->
+        <form method="POST" enctype="multipart/form-data" class="space-y-6" id="booking-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <!-- Dress Selection (if applicable) -->
+            {% if product.is_dress %}
+            <div class="glass rounded-2xl p-6 space-y-5">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-500">
+                        <i class="fa-solid fa-shirt"></i>
+                    </div>
+                    Select {{ 'Size' if product.dress_type == 'adult' else 'Age Group' }}
+                </h2>
+
+                {% if product.dress_type == 'adult' %}
+                <div>
+                    <label class="block text-sm font-semibold mb-1.5">Size <span class="text-red-400">*</span></label>
+                    <select name="selected_size" id="dress-size-select" required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition">
+                        <option value="">-- Select Size --</option>
+                        {% for size, price in product.get_size_prices().items() %}
+                        <option value="{{ size }}" data-price="{{ price }}">{{ size }} - &#8377;{{ "%.2f"|format(price)
+                            }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% elif product.dress_type == 'child' %}
+                <div>
+                    <label class="block text-sm font-semibold mb-1.5">Age Group <span
+                            class="text-red-400">*</span></label>
+                    <select name="selected_age_group" id="dress-age-select" required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition">
+                        <option value="">-- Select Age Group --</option>
+                        {% for age, price in product.get_age_prices().items() %}
+                        <option value="{{ age }}" data-price="{{ price }}">Age {{ age }} - &#8377;{{
+                            "%.2f"|format(price) }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="glass rounded-2xl p-6 space-y-5">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-500">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    Your Details
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-1.5">Full Name <span
+                                class="text-red-400">*</span></label>
+                        <div class="relative">
+                            <i
+                                class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                            <input type="text" name="name" required
+                                value="{{ current_user.username if current_user.is_authenticated else '' }}"
+                                class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 focus:border-transparent outline-none transition"
+                                placeholder="Your full name">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-1.5">Email <span
+                                class="text-red-400">*</span></label>
+                        <div class="relative">
+                            <i
+                                class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                            <input type="email" name="email" required
+                                value="{{ current_user.email if current_user.is_authenticated else '' }}"
+                                class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 focus:border-transparent outline-none transition"
+                                placeholder="you@example.com">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-1.5">Phone <span
+                                class="text-red-400">*</span></label>
+                        <div class="relative">
+                            <i
+                                class="fa-solid fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                            <input type="tel" name="phone" required
+                                value="{{ current_user.phone if current_user.is_authenticated else '' }}"
+                                class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 focus:border-transparent outline-none transition"
+                                placeholder="+91 98765 43210">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-1.5">Address <span
+                                class="text-red-400">*</span></label>
+                        <div class="relative">
+                            <i class="fa-solid fa-location-dot absolute left-4 top-3.5 text-gray-400 text-sm"></i>
+                            <textarea name="address" required rows="1"
+                                class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 focus:border-transparent outline-none transition resize-y"
+                                placeholder="Delivery address">{{ current_user.address if current_user.is_authenticated and current_user.address else '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-6 space-y-5">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 flex items-center justify-center text-secondary-500">
+                        <i class="fa-solid fa-palette"></i>
+                    </div>
+                    Customisation
+                </h2>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-1.5">Preferences / Special Instructions</label>
+                    <textarea name="preferences" rows="3"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 focus:border-transparent outline-none transition resize-y"
+                        placeholder="Any specific sizes, colors, or requirements..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-1.5">Reference Image <span
+                            class="text-gray-400 font-normal">(optional)</span></label>
+                    <div id="ref-drop"
+                        class="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center hover:border-primary-400 hover:bg-primary-50/30 dark:hover:bg-primary-900/10 transition-all cursor-pointer group">
+                        <div class="space-y-2">
+                            <div
+                                class="w-14 h-14 mx-auto rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 transition">
+                                <i
+                                    class="fa-solid fa-cloud-arrow-up text-2xl text-gray-300 dark:text-gray-600 group-hover:text-primary-500 transition"></i>
+                            </div>
+                            <p class="text-sm text-gray-500">Drop an image or <span
+                                    class="text-primary-500 font-semibold">click to browse</span></p>
+                            <p class="text-xs text-gray-400">JPG, PNG up to 5MB</p>
+                        </div>
+                        <input type="file" name="reference_image" accept="image/*"
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="ref-input">
+                    </div>
+                    <div id="ref-preview" class="mt-3 flex gap-2"></div>
+                </div>
+            </div>
+
+            <!-- Summary & Submit -->
+            <div class="glass rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-5 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <span class="text-gray-500 font-medium">Order Total</span>
+                    <span class="text-2xl font-black gradient-text" id="order-total">&#8377;{{
+                        "%.2f"|format(product.price) }}</span>
+                </div>
+                <button type="submit"
+                    class="w-full py-4 rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white font-bold text-lg shadow-xl shadow-primary-500/25 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                    <i class="fa-solid fa-check-circle mr-2"></i>Confirm Booking
+                </button>
+                <p class="text-center text-xs text-gray-400 mt-3">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> Secure checkout - Owner will contact you after
+                    booking
+                </p>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<!-- ═══════════════════ BOOKING CONFIRMATION POPUP ═══════════════════ -->
+{% if show_popup is defined and show_popup %}
+<div id="booking-popup-overlay"
+    class="fixed inset-0 z-[200] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+    style="animation: fadeIn 0.3s ease-out;">
+    <div class="glass rounded-3xl p-8 max-w-md w-full text-center space-y-6 shadow-2xl"
+        style="animation: scaleIn 0.4s ease-out;">
+        <!-- Success Icon -->
+        <div
+            class="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
+            <i class="fa-solid fa-check text-3xl"></i>
+        </div>
+
+        <div class="space-y-3">
+            <h2 class="text-2xl font-black gradient-text">Thank You!</h2>
+            <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                Thank you for choosing us! To proceed with your customized order, our team will connect with you soon to
+                confirm the payment details.
+            </p>
+        </div>
+
+        <div class="flex flex-col gap-3">
+            <a href="{{ url_for('customer.dashboard') }}"
+                class="w-full py-3 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
+                <i class="fa-solid fa-clipboard-list mr-2"></i>View My Orders
+            </a>
+            <button type="button" onclick="document.getElementById('booking-popup-overlay').remove()"
+                class="w-full py-3 rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition">
+                <i class="fa-solid fa-xmark mr-1"></i>Close
+            </button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+</style>
+<script>
+    // Reference image preview
+    const refInput = document.getElementById('ref-input');
+    const refPreview = document.getElementById('ref-preview');
+
+    refInput.addEventListener('change', () => {
+        refPreview.innerHTML = '';
+        if (refInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                refPreview.innerHTML = '<div class="relative inline-block"><img src="' + e.target.result + '" class="w-24 h-24 rounded-xl object-cover shadow-lg border-2 border-primary-300"><button type="button" onclick="refInput.value=\'\';refPreview.innerHTML=\'\'" class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white text-xs flex items-center justify-center shadow hover:bg-red-600"><i class="fa-solid fa-xmark"></i></button></div>';
+            };
+            reader.readAsDataURL(refInput.files[0]);
+        }
+    });
+
+    // Dynamic price update for dress products
+    const sizeSelect = document.getElementById('dress-size-select');
+    const ageSelect = document.getElementById('dress-age-select');
+    const bookingPrice = document.getElementById('booking-price');
+    const orderTotal = document.getElementById('order-total');
+
+    function updatePrice(select) {
+        if (select) {
+            select.addEventListener('change', function () {
+                const option = this.options[this.selectedIndex];
+                const price = option.getAttribute('data-price');
+                if (price) {
+                    const formatted = parseFloat(price).toFixed(2);
+                    bookingPrice.innerHTML = '&#8377;' + formatted;
+                    orderTotal.innerHTML = '&#8377;' + formatted;
+                }
+            });
+        }
+    }
+    updatePrice(sizeSelect);
+    updatePrice(ageSelect);
+</script>
+{% endblock %}

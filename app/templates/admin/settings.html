@@ -1,0 +1,103 @@
+{% extends "layouts/admin_base.html" %}
+{% block title %}Settings — Admin | The Girlhub{% endblock %}
+
+{% block admin_content %}
+<div class="fade-up max-w-2xl space-y-6">
+    <h1 class="text-3xl font-bold gradient-text">Settings</h1>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- ═══════════ PROFILE ═══════════ -->
+        <div class="glass rounded-2xl p-6 space-y-5">
+            <h2 class="font-semibold text-lg flex items-center gap-2">
+                <i class="fa-solid fa-user-gear text-primary-500"></i> Profile
+            </h2>
+
+            <!-- Avatar -->
+            <div class="flex items-center gap-5">
+                <div class="relative group">
+                    {% if current_user.avatar %}
+                    <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}"
+                        class="w-20 h-20 rounded-full object-cover border-4 border-primary-200 dark:border-primary-800">
+                    {% else %}
+                    <div
+                        class="w-20 h-20 rounded-full bg-gradient-to-br from-primary-400 to-secondary-500 flex items-center justify-center text-3xl text-white font-bold">
+                        {{ current_user.username[0]|upper }}
+                    </div>
+                    {% endif %}
+                    <label
+                        class="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                        <i class="fa-solid fa-camera text-white text-lg"></i>
+                        <input type="file" name="avatar" accept="image/*" class="hidden">
+                    </label>
+                </div>
+                <div>
+                    <p class="font-semibold">{{ current_user.username }}</p>
+                    <p class="text-sm text-gray-500">{{ current_user.email }}</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Username</label>
+                    <input type="text" name="username" value="{{ current_user.username }}"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Email</label>
+                    <input type="email" name="email" value="{{ current_user.email }}"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Phone</label>
+                    <input type="text" name="phone" value="{{ current_user.phone or '' }}"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">New Password <span
+                            class="text-gray-400 font-normal">(leave blank to keep)</span></label>
+                    <input type="password" name="new_password"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition"
+                        placeholder="••••••••">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold mb-1">Address</label>
+                <textarea name="address" rows="3"
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition resize-y">{{ current_user.address or '' }}</textarea>
+            </div>
+        </div>
+
+        <!-- ═══════════ SITE SETTINGS ═══════════ -->
+        <div class="glass rounded-2xl p-6 space-y-5">
+            <h2 class="font-semibold text-lg flex items-center gap-2">
+                <i class="fa-solid fa-globe text-secondary-500"></i> Site Settings
+            </h2>
+
+            <div>
+                <label class="block text-sm font-semibold mb-1">
+                    <i class="fa-brands fa-instagram text-pink-500 mr-1"></i> Instagram Profile URL
+                </label>
+                <div class="relative">
+                    <i class="fa-solid fa-link absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="url" name="instagram_url" value="{{ instagram_url or '' }}"
+                        class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition"
+                        placeholder="https://www.instagram.com/thegirlhub">
+                </div>
+                <p class="text-xs text-gray-400 mt-1">This link will be used on the "Follow us on Instagram" button on
+                    the home page.</p>
+            </div>
+        </div>
+
+        <button type="submit"
+            class="px-6 py-3 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
+            <i class="fa-solid fa-save mr-2"></i>Save Changes
+        </button>
+    </form>
+</div>
+{% endblock %}

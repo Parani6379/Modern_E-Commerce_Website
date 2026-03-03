@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root" class="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}The Girlhub — Handpicked & Handcrafted Products{% endblock %}</title>
+    <meta name="description"
+        content="{% block meta_description %}The Girlhub — Handpicked, curated, and crafted with love. Shop premium handcrafted products, dresses, and accessories.{% endblock %}">
+    <meta name="keywords"
+        content="{% block meta_keywords %}The Girlhub, handcrafted, handmade, fashion, dresses, accessories, boutique, online shop{% endblock %}">
+    <meta name="author" content="The Girlhub">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#ec4899">
+    <link rel="canonical" href="{{ request.url }}">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:site_name" content="The Girlhub">
+    <meta property="og:image"
+        content="{% block og_image %}{{ url_for('static', filename='img/og-default.png', _external=True) }}{% endblock %}">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ self.title() }}">
+    <meta name="twitter:description" content="{{ self.meta_description() }}">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "The Girlhub",
+        "description": "Handpicked, curated, and crafted with love — premium handcrafted products.",
+        "url": "{{ request.host_url }}",
+        "logo": "{{ url_for('static', filename='img/og-default.png', _external=True) }}"
+    }
+    </script>
+    {% block extra_structured_data %}{% endblock %}
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#fdf2f8', 100: '#fce7f3', 200: '#fbcfe8', 300: '#f9a8d4', 400: '#f472b6', 500: '#ec4899', 600: '#db2777', 700: '#be185d', 800: '#9d174d', 900: '#831843' },
+                        secondary: { 50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c4b5fd', 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 800: '#5b21b6', 900: '#4c1d95' },
+                        accent: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+
+    <!-- App JS (deferred) -->
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+
+    <style>
+        /* ── Smooth transitions for dark mode ── */
+        * {
+            transition: background-color 0.3s ease, color 0.2s ease, border-color 0.3s ease;
+        }
+
+        /* ── Gradient text utility ── */
+        .gradient-text {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* ── Glass card ── */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dark .glass {
+            background: rgba(30, 30, 40, 0.7);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ── Toast animation ── */
+        .toast-enter {
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .toast-exit {
+            animation: slideOut 0.3s ease-in forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* ── Fade-up on load ── */
+        .fade-up {
+            animation: fadeUp 0.6s ease-out both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans min-h-screen flex flex-col">
+
+    <!-- ═══════════════════ NAVBAR ═══════════════════ -->
+    <nav class="sticky top-0 z-50 glass shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="{{ url_for('customer.home') }}" class="flex items-center space-x-2 group">
+                    <span class="text-2xl"><i
+                            class="fa-solid fa-heart-pulse text-primary-500 group-hover:scale-110 transition-transform"></i></span>
+                    <span class="text-xl font-extrabold gradient-text">The Girlhub</span>
+                </a>
+
+                <!-- Desktop links -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="{{ url_for('customer.home') }}"
+                        class="hover:text-primary-500 transition font-medium">Home</a>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('customer.product_request') }}"
+                        class="hover:text-primary-500 transition font-medium">Request Product</a>
+                    {% if current_user.is_admin %}
+                    <a href="{{ url_for('admin.dashboard') }}"
+                        class="hover:text-primary-500 transition font-medium">Admin Panel</a>
+                    {% else %}
+                    <a href="{{ url_for('customer.dashboard') }}"
+                        class="hover:text-primary-500 transition font-medium">My Orders</a>
+                    {% endif %}
+                    <a href="{{ url_for('auth.logout') }}"
+                        class="px-4 py-2 rounded-lg bg-primary-500 hover:bg-primary-600 text-white transition font-medium">
+                        <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('auth.login') }}"
+                        class="hover:text-primary-500 transition font-medium">Login</a>
+                    <a href="{{ url_for('auth.register') }}"
+                        class="px-4 py-2 rounded-lg bg-primary-500 hover:bg-primary-600 text-white transition font-medium">Register</a>
+                    {% endif %}
+
+                    <!-- Dark / Light toggle -->
+                    <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                        title="Toggle theme">
+                        <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Mobile hamburger -->
+                <button id="mobile-menu-btn"
+                    class="md:hidden p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobile-menu"
+            class="hidden md:hidden border-t border-gray-200 dark:border-gray-700 px-4 pb-4 space-y-2">
+            <a href="{{ url_for('customer.home') }}" class="block py-2 hover:text-primary-500">Home</a>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('customer.product_request') }}" class="block py-2 hover:text-primary-500">Request
+                Product</a>
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('admin.dashboard') }}" class="block py-2 hover:text-primary-500">Admin Panel</a>
+            {% else %}
+            <a href="{{ url_for('customer.dashboard') }}" class="block py-2 hover:text-primary-500">My Orders</a>
+            {% endif %}
+            <a href="{{ url_for('auth.logout') }}" class="block py-2 text-primary-500 font-medium">Logout</a>
+            {% else %}
+            <a href="{{ url_for('auth.login') }}" class="block py-2 hover:text-primary-500">Login</a>
+            <a href="{{ url_for('auth.register') }}" class="block py-2 hover:text-primary-500">Register</a>
+            {% endif %}
+            <button id="theme-toggle-mobile" class="py-2 hover:text-primary-500">
+                <i class="fa-solid fa-moon mr-1"></i> Toggle Theme
+            </button>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════ FLASH / TOAST ═══════════════════ -->
+    <div id="toast-container" class="fixed top-20 right-4 z-[100] flex flex-col space-y-3 w-80">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="toast-enter flex items-start gap-3 p-4 rounded-xl shadow-lg
+                        {% if category == 'success' %} bg-emerald-500 text-white
+                        {% elif category == 'danger' %} bg-red-500 text-white
+                        {% elif category == 'warning' %} bg-amber-500 text-white
+                        {% else %} bg-blue-500 text-white {% endif %}" role="alert">
+            <i class="fa-solid
+                            {% if category == 'success' %} fa-circle-check
+                            {% elif category == 'danger' %} fa-circle-xmark
+                            {% elif category == 'warning' %} fa-triangle-exclamation
+                            {% else %} fa-circle-info {% endif %} mt-0.5 text-lg"></i>
+            <span class="flex-1 text-sm font-medium">{{ message }}</span>
+            <button
+                onclick="this.parentElement.classList.replace('toast-enter','toast-exit');setTimeout(()=>this.parentElement.remove(),300)"
+                class="hover:opacity-70 transition"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ═══════════════════ FOOTER ═══════════════════ -->
+    <footer class="border-t border-gray-200 dark:border-gray-700 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
+            <p>&copy; 2026 The Girlhub. All rights reserved.</p>
+            <p class="mt-1">Built with <i class="fa-solid fa-heart text-primary-500"></i> using Flask &amp; Tailwind CSS
+            </p>
+        </div>
+    </footer>
+
+    <!-- ═══════════════════ SCRIPTS ═══════════════════ -->
+    <script>
+            // ── Dark / Light toggle ──
+            (function () {
+                const html = document.getElementById('html-root');
+                const saved = localStorage.getItem('theme');
+                if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    html.classList.replace('light', 'dark');
+                }
+                function toggle() {
+                    html.classList.toggle('dark');
+                    html.classList.toggle('light');
+                    localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+                    updateIcon();
+                }
+                function updateIcon() {
+                    document.querySelectorAll('#theme-icon, #theme-toggle-mobile i').forEach(i => {
+                        i.className = html.classList.contains('dark') ? 'fa-solid fa-sun text-lg' : 'fa-solid fa-moon text-lg';
+                    });
+                }
+                updateIcon();
+                document.getElementById('theme-toggle')?.addEventListener('click', toggle);
+                document.getElementById('theme-toggle-mobile')?.addEventListener('click', toggle);
+            })();
+
+        // ── Mobile menu ──
+        document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        // ── Auto-dismiss toasts ──
+        setTimeout(() => {
+            document.querySelectorAll('#toast-container > div').forEach(t => {
+                t.classList.replace('toast-enter', 'toast-exit');
+                setTimeout(() => t.remove(), 300);
+            });
+        }, 5000);
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

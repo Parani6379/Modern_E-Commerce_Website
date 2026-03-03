@@ -1,0 +1,117 @@
+{% extends "layouts/base.html" %}
+
+{% set nav_items = [
+('admin.dashboard', 'fa-chart-pie', 'Dashboard'),
+('admin.products', 'fa-box-open', 'Products'),
+('admin.categories', 'fa-tags', 'Categories'),
+('admin.orders', 'fa-clipboard-list','Orders'),
+('admin.product_requests', 'fa-inbox', 'Product Requests'),
+('admin.users', 'fa-users', 'Users'),
+('admin.expenses', 'fa-receipt', 'Expenses'),
+('admin.settings', 'fa-gear', 'Settings'),
+] %}
+
+{% block content %}
+<div class="flex min-h-[calc(100vh-4rem)]">
+
+    <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+    <aside id="admin-sidebar"
+        class="hidden lg:flex flex-col w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-sm">
+        <!-- Profile -->
+        <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center space-x-3">
+                <div
+                    class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-secondary-500 flex items-center justify-center text-white font-bold">
+                    {{ current_user.username[0]|upper }}
+                </div>
+                <div>
+                    <p class="font-semibold text-sm">{{ current_user.username }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Administrator</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nav links -->
+        <nav class="flex-1 p-4 space-y-1">
+            {% for endpoint, icon, label in nav_items %}
+            <a href="{{ url_for(endpoint) }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition
+               {% if request.endpoint == endpoint %}
+                   bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-md
+               {% else %}
+                   text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700
+               {% endif %}">
+                <i class="fa-solid {{ icon }} w-5 text-center"></i>
+                {{ label }}
+            </a>
+            {% endfor %}
+        </nav>
+
+        <!-- Back to site -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+            <a href="{{ url_for('customer.home') }}"
+                class="flex items-center gap-2 text-sm text-gray-500 hover:text-primary-500 transition">
+                <i class="fa-solid fa-arrow-left"></i> Back to Site
+            </a>
+        </div>
+    </aside>
+
+    <!-- Mobile sidebar toggle -->
+    <button id="sidebar-toggle"
+        class="lg:hidden fixed bottom-4 right-4 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 text-white shadow-lg flex items-center justify-center hover:scale-110 transition-transform">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- Mobile sidebar overlay -->
+    <div id="sidebar-overlay" class="hidden lg:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"></div>
+    <aside id="mobile-sidebar"
+        class="hidden lg:hidden fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-xl transform -translate-x-full transition-transform duration-300">
+        <div class="p-5 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
+            <span class="font-bold gradient-text">Admin Menu</span>
+            <button id="sidebar-close" class="text-gray-500 hover:text-gray-700">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        <nav class="p-4 space-y-1">
+            {% for endpoint, icon, label in nav_items %}
+            <a href="{{ url_for(endpoint) }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition
+               {% if request.endpoint == endpoint %}
+                   bg-gradient-to-r from-primary-500 to-secondary-500 text-white
+               {% else %}
+                   text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700
+               {% endif %}">
+                <i class="fa-solid {{ icon }} w-5 text-center"></i>{{ label }}
+            </a>
+            {% endfor %}
+        </nav>
+    </aside>
+
+    <!-- ═══════════════════ MAIN AREA ═══════════════════ -->
+    <div class="flex-1 p-6 lg:p-8 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+        {% block admin_content %}{% endblock %}
+    </div>
+</div>
+
+{% block scripts %}
+{{ super() }}
+<script>
+    const toggle = document.getElementById('sidebar-toggle');
+    const overlay = document.getElementById('sidebar-overlay');
+    const mobileSidebar = document.getElementById('mobile-sidebar');
+    const closeBtn = document.getElementById('sidebar-close');
+
+    function openSidebar() {
+        mobileSidebar.classList.remove('hidden', '-translate-x-full');
+        mobileSidebar.classList.add('translate-x-0');
+        overlay.classList.remove('hidden');
+    }
+    function closeSidebar() {
+        mobileSidebar.classList.add('-translate-x-full');
+        mobileSidebar.classList.remove('translate-x-0');
+        setTimeout(() => { mobileSidebar.classList.add('hidden'); overlay.classList.add('hidden'); }, 300);
+    }
+    toggle?.addEventListener('click', openSidebar);
+    closeBtn?.addEventListener('click', closeSidebar);
+    overlay?.addEventListener('click', closeSidebar);
+</script>
+{% endblock %}
+{% endblock %}

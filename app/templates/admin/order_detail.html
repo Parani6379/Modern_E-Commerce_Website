@@ -1,0 +1,167 @@
+{% extends "layouts/admin_base.html" %}
+{% block title %}Order #{{ order.id }} — Admin | The Girlhub{% endblock %}
+
+{% block admin_content %}
+<div class="fade-up max-w-3xl space-y-6">
+    <div class="flex items-center gap-3">
+        <a href="{{ url_for('admin.orders') }}" class="text-gray-400 hover:text-primary-500 transition"><i
+                class="fa-solid fa-arrow-left text-lg"></i></a>
+        <h1 class="text-3xl font-bold gradient-text">Order #{{ order.id }}</h1>
+        <span class="badge badge-{{ order.status }} ml-2"><i class="fa-solid fa-circle text-[6px]"></i> {{
+            order.status|title
+            }}</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Customer Info -->
+        <div class="glass rounded-2xl p-6 space-y-4">
+            <h2 class="font-semibold text-lg"><i class="fa-solid fa-user mr-2 text-primary-500"></i>Customer Details
+            </h2>
+            <div class="space-y-2 text-sm">
+                <p><span class="text-gray-500 w-20 inline-block">Name:</span> <strong>{{ order.customer_name }}</strong>
+                </p>
+                <p><span class="text-gray-500 w-20 inline-block">Email:</span> {{ order.customer_email }}</p>
+                <p><span class="text-gray-500 w-20 inline-block">Phone:</span> {{ order.customer_phone }}</p>
+                <p><span class="text-gray-500 w-20 inline-block">Address:</span> {{ order.customer_address }}</p>
+                {% if order.preferences %}
+                <p><span class="text-gray-500 w-20 inline-block">Notes:</span> {{ order.preferences }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="glass rounded-2xl p-6 space-y-4">
+            <h2 class="font-semibold text-lg"><i class="fa-solid fa-box-open mr-2 text-secondary-500"></i>Product
+                Details</h2>
+            {% if order.product %}
+            <div class="flex gap-4">
+                {% if order.product.primary_image %}
+                <img src="{{ url_for('static', filename='uploads/' + order.product.primary_image) }}"
+                    class="w-20 h-20 rounded-xl object-cover">
+                {% endif %}
+                <div class="text-sm space-y-1">
+                    <p class="font-semibold text-base">{{ order.product.name }}</p>
+                    <p class="text-primary-500 font-bold text-lg">&#8377;{{ "%.2f"|format(order.total_price) }}</p>
+                    {% if order.selected_size %}
+                    <p class="text-xs"><span class="text-gray-500">Size:</span> <strong>{{ order.selected_size
+                            }}</strong></p>
+                    {% endif %}
+                    {% if order.selected_age_group %}
+                    <p class="text-xs"><span class="text-gray-500">Age Group:</span> <strong>{{ order.selected_age_group
+                            }}</strong></p>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <p class="text-sm text-gray-500">Manual order — &#8377;{{ "%.2f"|format(order.total_price) }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Reference Image -->
+    {% if order.reference_image %}
+    <div class="glass rounded-2xl p-6">
+        <h2 class="font-semibold text-lg mb-3"><i class="fa-solid fa-image mr-2 text-accent-500"></i>Reference Image
+        </h2>
+        <img src="{{ url_for('static', filename='uploads/' + order.reference_image) }}"
+            class="max-w-sm rounded-xl shadow">
+    </div>
+    {% endif %}
+
+    <!-- Tracking ID Display -->
+    {% if order.tracking_id %}
+    <div class="glass rounded-2xl p-6">
+        <h2 class="font-semibold text-lg mb-3"><i class="fa-solid fa-truck-fast mr-2 text-purple-500"></i>Tracking
+            Information</h2>
+        <p class="text-sm"><span class="text-gray-500">Tracking ID:</span> <strong
+                class="text-purple-600 dark:text-purple-400 font-mono text-base">{{ order.tracking_id }}</strong></p>
+    </div>
+    {% endif %}
+
+    <!-- Status Progress -->
+    <div class="glass rounded-2xl p-6">
+        <h2 class="font-semibold text-lg mb-4"><i class="fa-solid fa-route mr-2 text-blue-500"></i>Order Progress</h2>
+        {% set status_list = ['enquiry', 'ordered', 'paid', 'dispatched', 'delivered'] %}
+        {% set current_idx = status_list.index(order.status) if order.status in status_list else 0 %}
+        <div class="flex items-center mb-6">
+            {% for step in status_list %}
+            <div class="flex items-center gap-1 {% if not loop.last %}flex-1{% endif %}">
+                <div class="flex flex-col items-center gap-1">
+                    <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-colors
+                        {% if loop.index0 <= current_idx %}
+                            bg-gradient-to-br from-primary-500 to-secondary-500 text-white shadow-md
+                        {% else %}
+                            bg-gray-200 dark:bg-gray-700 text-gray-400
+                        {% endif %}">
+                        {% if loop.index0 < current_idx %} <i class="fa-solid fa-check"></i>
+                            {% elif loop.index0 == current_idx %}
+                            <i class="fa-solid fa-circle text-[6px]"></i>
+                            {% else %}
+                            {{ loop.index }}
+                            {% endif %}
+                    </div>
+                    <span class="text-[10px] font-semibold capitalize
+                        {% if loop.index0 <= current_idx %}text-primary-500{% else %}text-gray-400{% endif %}">
+                        {{ step }}
+                    </span>
+                </div>
+            </div>
+            {% if not loop.last %}
+            <div
+                class="flex-1 h-0.5 rounded mx-1 mb-5
+                {% if loop.index0 < current_idx %}bg-gradient-to-r from-primary-500 to-secondary-500{% else %}bg-gray-200 dark:bg-gray-700{% endif %}">
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Update Status -->
+    <div class="glass rounded-2xl p-6">
+        <h2 class="font-semibold text-lg mb-4"><i class="fa-solid fa-arrows-rotate mr-2 text-emerald-500"></i>Update
+            Status</h2>
+
+        {% if order.is_locked %}
+        <div
+            class="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400">
+            <i class="fa-solid fa-lock text-xl"></i>
+            <div>
+                <p class="font-semibold">Order Delivered & Locked</p>
+                <p class="text-sm opacity-75">This order has been delivered. No further status changes are allowed.</p>
+            </div>
+        </div>
+        {% else %}
+        {% set next_idx = current_idx + 1 %}
+        {% if next_idx < status_list|length %} {% set next_status=status_list[next_idx] %} <form method="POST"
+            action="{{ url_for('admin.order_status', order_id=order.id) }}" class="space-y-4" id="status-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="status" value="{{ next_status }}">
+
+            {% if next_status == 'dispatched' %}
+            <!-- Tracking ID field -->
+            <div>
+                <label class="block text-sm font-semibold mb-1.5">Tracking ID <span
+                        class="text-red-400">*</span></label>
+                <div class="relative">
+                    <i class="fa-solid fa-barcode absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" name="tracking_id" required
+                        class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition"
+                        placeholder="Enter tracking/courier ID">
+                </div>
+                <p class="text-xs text-gray-400 mt-1">Required before marking as Dispatched</p>
+            </div>
+            {% endif %}
+
+            <button type="submit"
+                class="px-6 py-3 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
+                <i class="fa-solid fa-arrow-right mr-2"></i>Advance to {{ next_status|title }}
+            </button>
+            <p class="text-xs text-gray-400">Next step: {{ order.status|title }} &rarr; {{ next_status|title }}</p>
+            </form>
+            {% endif %}
+            {% endif %}
+    </div>
+
+    <p class="text-xs text-gray-400">Order placed on {{ order.created_at.strftime('%d %B %Y at %I:%M %p') }}</p>
+</div>
+{% endblock %}

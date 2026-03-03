@@ -1,0 +1,60 @@
+{% extends "layouts/admin_base.html" %}
+{% block title %}{{ 'Edit' if expense else 'Add' }} Expense — Admin | GirlHub{% endblock %}
+
+{% block admin_content %}
+<div class="fade-up max-w-2xl space-y-6">
+    <div class="flex items-center gap-3">
+        <a href="{{ url_for('admin.expenses') }}" class="text-gray-400 hover:text-primary-500 transition"><i
+                class="fa-solid fa-arrow-left text-lg"></i></a>
+        <h1 class="text-3xl font-bold gradient-text">{{ 'Edit' if expense else 'Add' }} Expense</h1>
+    </div>
+
+    <form method="POST" class="glass rounded-2xl p-6 space-y-5">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div>
+            <label class="block text-sm font-semibold mb-1">Title *</label>
+            <input type="text" name="title" value="{{ expense.title if expense else '' }}" required
+                class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition"
+                placeholder="e.g. Shipping Supplies">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-semibold mb-1">Amount (₹) *</label>
+                <input type="number" name="amount" step="0.01" min="0" value="{{ expense.amount if expense else 0 }}"
+                    required
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold mb-1">Category</label>
+                <input type="text" name="category" value="{{ expense.category if expense else 'General' }}"
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition"
+                    placeholder="General">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold mb-1">Date *</label>
+                <input type="date" name="date" value="{{ expense.date.strftime('%Y-%m-%d') if expense else '' }}"
+                    required
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition">
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold mb-1">Notes</label>
+            <textarea name="notes" rows="3"
+                class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition resize-y"
+                placeholder="Additional notes...">{{ expense.notes if expense else '' }}</textarea>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+            <button type="submit"
+                class="px-6 py-3 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
+                <i class="fa-solid fa-save mr-2"></i>{{ 'Update' if expense else 'Add' }} Expense
+            </button>
+            <a href="{{ url_for('admin.expenses') }}"
+                class="px-6 py-3 rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

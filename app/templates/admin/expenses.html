@@ -1,0 +1,86 @@
+{% extends "layouts/admin_base.html" %}
+{% block title %}Expenses — Admin | GirlHub{% endblock %}
+
+{% block admin_content %}
+<div class="fade-up space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold gradient-text">Expenses</h1>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Total: <strong class="text-amber-500">₹{{
+                    "%.2f"|format(total) }}</strong></p>
+        </div>
+        <a href="{{ url_for('admin.expense_add') }}"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold shadow hover:shadow-lg hover:-translate-y-0.5 transition-all">
+            <i class="fa-solid fa-plus"></i> Add Expense
+        </a>
+    </div>
+
+    <!-- Table -->
+    <div class="glass rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50">
+                        <th class="px-5 py-3 font-semibold">Title</th>
+                        <th class="px-5 py-3 font-semibold">Category</th>
+                        <th class="px-5 py-3 font-semibold">Amount</th>
+                        <th class="px-5 py-3 font-semibold">Date</th>
+                        <th class="px-5 py-3 font-semibold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                    {% for exp in expenses.items %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                        <td class="px-5 py-4 font-medium">{{ exp.title }}</td>
+                        <td class="px-5 py-4"><span
+                                class="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700">{{ exp.category
+                                }}</span></td>
+                        <td class="px-5 py-4 font-semibold text-amber-500">₹{{ "%.2f"|format(exp.amount) }}</td>
+                        <td class="px-5 py-4 text-gray-500">{{ exp.date.strftime('%d %b %Y') }}</td>
+                        <td class="px-5 py-4 flex gap-2">
+                            <a href="{{ url_for('admin.expense_edit', expense_id=exp.id) }}"
+                                class="text-blue-500 hover:text-blue-600 transition"><i
+                                    class="fa-solid fa-pen-to-square"></i></a>
+                            <form method="POST" action="{{ url_for('admin.expense_delete', expense_id=exp.id) }}"
+                                onsubmit="return confirm('Delete this expense?')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="text-red-500 hover:text-red-600 transition"><i
+                                        class="fa-solid fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="px-5 py-12 text-center text-gray-400"><i
+                                class="fa-solid fa-receipt text-4xl mb-3 block"></i>No expenses yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if expenses.pages > 1 %}
+    <div class="flex justify-center gap-2">
+        {% if expenses.has_prev %}
+        <a href="?page={{ expenses.prev_num }}"
+            class="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 transition">←
+            Prev</a>
+        {% endif %}
+        {% for p in expenses.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+        {% if p %}
+        <a href="?page={{ p }}"
+            class="px-4 py-2 rounded-lg transition {% if p == expenses.page %}bg-primary-500 text-white{% else %}bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50{% endif %}">{{
+            p }}</a>
+        {% else %}<span class="px-2 py-2 text-gray-400">…</span>{% endif %}
+        {% endfor %}
+        {% if expenses.has_next %}
+        <a href="?page={{ expenses.next_num }}"
+            class="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 transition">Next
+            →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

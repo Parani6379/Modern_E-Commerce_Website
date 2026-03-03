@@ -1,0 +1,296 @@
+{% extends "layouts/base.html" %}
+{% block title %}{{ product.name }} — The Girlhub{% endblock %}
+{% block meta_description %}{{ product.description[:160] if product.description else product.name }}{% endblock %}
+{% block og_type %}product{% endblock %}
+{% block og_image %}{% if product.primary_image %}{{ url_for('static', filename='uploads/' + product.primary_image,
+_external=True) }}{% endif %}{% endblock %}
+
+{% block extra_structured_data %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "{{ product.name }}",
+    "description": "{{ product.description[:200] if product.description else '' }}",
+    "image": "{% if product.primary_image %}{{ url_for('static', filename='uploads/' + product.primary_image, _external=True) }}{% endif %}",
+    "brand": { "@type": "Brand", "name": "The Girlhub" },
+    "offers": {
+        "@type": "Offer",
+        "price": "{{ product.price }}",
+        "priceCurrency": "INR",
+        "availability": "{% if product.stock > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}"
+    }
+}
+</script>
+{% endblock %}
+{% block content %}
+<div class="bg-mesh min-h-screen">
+    <div class="max-w-6xl mx-auto px-4 py-10 space-y-12">
+
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 fade-up">
+            <a href="{{ url_for('customer.home') }}" class="hover:text-primary-500 transition">
+                <i class="fa-solid fa-house mr-1"></i>Home
+            </a>
+            <i class="fa-solid fa-chevron-right text-[8px]"></i>
+            {% if product.category %}
+            <a href="{{ url_for('customer.home', category=product.category_id) }}"
+                class="hover:text-primary-500 transition">{{ product.category.name }}</a>
+            <i class="fa-solid fa-chevron-right text-[8px]"></i>
+            {% endif %}
+            <span class="text-gray-800 dark:text-gray-200 font-medium">{{ product.name }}</span>
+        </nav>
+
+        <!-- ═══════════════════ PRODUCT HERO ═══════════════════ -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 fade-up" style="animation-delay:.1s">
+
+            <!-- Image gallery -->
+            <div class="space-y-4">
+                {% set images = product.get_images() %}
+
+                <!-- Main image -->
+                <div
+                    class="relative rounded-3xl overflow-hidden shadow-2xl aspect-square bg-gray-100 dark:bg-gray-800 group">
+                    {% if images %}
+                    <img id="main-img" src="{{ url_for('static', filename='uploads/' + images[0]) }}"
+                        alt="{{ product.name }}"
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-600">
+                        <i class="fa-solid fa-image text-7xl"></i>
+                    </div>
+                    {% endif %}
+
+                    <!-- Gradient overlay -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none">
+                    </div>
+
+                    {% if product.stock <= 0 %} <div
+                        class="absolute top-4 left-4 px-4 py-2 rounded-xl bg-red-500 text-white text-sm font-bold shadow-lg">
+                        <i class="fa-solid fa-circle-xmark mr-1"></i> Sold Out
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Thumbnails -->
+            {% if images|length > 1 %}
+            <div class="flex gap-3 overflow-x-auto pb-2">
+                {% for img in images %}
+                <button
+                    onclick="document.getElementById('main-img').src='{{ url_for('static', filename='uploads/' + img) }}'; this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('ring-2','ring-primary-500')); this.classList.add('ring-2','ring-primary-500')"
+                    class="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden transition-all hover:scale-105
+                        {% if loop.first %}ring-2 ring-primary-500{% else %}ring-1 ring-gray-200 dark:ring-gray-700{% endif %}">
+                    <img src="{{ url_for('static', filename='uploads/' + img) }}" alt=""
+                        class="w-full h-full object-cover">
+                </button>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Product info -->
+        <div class="space-y-6 lg:sticky lg:top-24 lg:self-start">
+
+            {% if product.category %}
+            <a href="{{ url_for('customer.home', category=product.category_id) }}"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary-50 dark:bg-secondary-900/30 text-secondary-600 dark:text-secondary-400 text-xs font-semibold hover:bg-secondary-100 dark:hover:bg-secondary-900/50 transition">
+                <i class="fa-solid fa-tag"></i> {{ product.category.name }}
+            </a>
+            {% endif %}
+
+            <h1 class="text-3xl md:text-4xl font-black leading-tight">{{ product.name }}</h1>
+
+            <!-- Price -->
+            <div class="flex items-end gap-3">
+                <span class="text-4xl font-black gradient-text" id="display-price">&#8377;{{
+                    "%.2f"|format(product.price) }}</span>
+            </div>
+
+            <!-- Dress Selection -->
+            {% if product.is_dress %}
+            <div class="glass rounded-2xl p-5 space-y-4">
+                <h3 class="font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-shirt text-purple-500"></i>
+                    Select {{ 'Size' if product.dress_type == 'adult' else 'Age Group' }}
+                </h3>
+
+                {% if product.dress_type == 'adult' %}
+                <div class="flex flex-wrap gap-2" id="size-buttons">
+                    {% for size, price in product.get_size_prices().items() %}
+                    <button type="button"
+                        class="size-btn px-5 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 font-semibold text-sm transition-all hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                        data-size="{{ size }}" data-price="{{ price }}">
+                        {{ size }} <span class="text-xs text-gray-400 ml-1">&#8377;{{ "%.0f"|format(price) }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+                <p class="text-xs text-red-400 hidden" id="size-error"><i
+                        class="fa-solid fa-exclamation-circle mr-1"></i>Please select a size before booking</p>
+                {% elif product.dress_type == 'child' %}
+                <select id="age-select"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-400 outline-none transition font-medium">
+                    <option value="">-- Select Age Group --</option>
+                    {% for age, price in product.get_age_prices().items() %}
+                    <option value="{{ age }}" data-price="{{ price }}">Age {{ age }} - &#8377;{{ "%.2f"|format(price) }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <p class="text-xs text-red-400 hidden" id="age-error"><i
+                        class="fa-solid fa-exclamation-circle mr-1"></i>Please select an age group before booking</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Stock -->
+            {% if product.stock > 0 %}
+            <div class="flex items-center gap-3">
+                <div
+                    class="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span class="font-semibold text-sm">In Stock</span>
+                </div>
+                <span class="text-sm text-gray-400">{{ product.stock }} available</span>
+            </div>
+            {% else %}
+            <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-500 w-fit">
+                <i class="fa-solid fa-circle-xmark"></i>
+                <span class="font-semibold text-sm">Out of Stock</span>
+            </div>
+            {% endif %}
+
+            <!-- Description -->
+            {% if product.description %}
+            <div class="glass rounded-2xl p-5 space-y-3">
+                <h3 class="font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-align-left text-primary-500"></i> Description
+                </h3>
+                <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-sm">{{ product.description }}</p>
+            </div>
+            {% endif %}
+
+            <!-- CTA Buttons -->
+            {% if product.stock > 0 %}
+            <div class="flex gap-3 pt-2">
+                <a href="{{ url_for('customer.booking', product_id=product.id) }}" id="book-now-btn"
+                    class="flex-1 flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white font-bold text-lg shadow-xl shadow-primary-500/25 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 pulse-glow">
+                    <i class="fa-solid fa-calendar-check text-xl"></i> Book Now
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Meta info -->
+            <div class="flex flex-wrap gap-4 text-xs text-gray-400 pt-2">
+                <span><i class="fa-solid fa-calendar mr-1"></i> Listed {{ product.created_at.strftime('%d %B %Y')
+                    }}</span>
+                <span><i class="fa-solid fa-shield-halved mr-1"></i> Secure Purchase</span>
+                <span><i class="fa-solid fa-truck-fast mr-1"></i> Fast Delivery</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════ RELATED PRODUCTS ═══════════════════ -->
+    {% if related %}
+    <section class="fade-up" style="animation-delay:.2s">
+        <div class="flex items-center gap-3 mb-6">
+            <div
+                class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-400 to-primary-500 flex items-center justify-center text-white">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <h2 class="text-xl font-bold">You May Also Like</h2>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-5 stagger">
+            {% for p in related %}
+            <a href="{{ url_for('customer.product_detail', product_id=p.id) }}"
+                class="glass rounded-2xl overflow-hidden card-hover card-shine fade-up group">
+                <div class="aspect-square bg-gray-100 dark:bg-gray-800 img-zoom">
+                    {% if p.primary_image %}
+                    <img src="{{ url_for('static', filename='uploads/' + p.primary_image) }}" alt="{{ p.name }}"
+                        class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-gray-300">
+                        <i class="fa-solid fa-image text-3xl"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="p-3 space-y-1">
+                    <h4 class="font-semibold text-sm truncate group-hover:text-primary-500 transition">{{ p.name }}</h4>
+                    <p class="text-primary-500 font-bold">&#8377;{{ "%.2f"|format(p.price) }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Dress product: size/age selection and dynamic pricing
+    const isDress = {{ 'true' if product.is_dress else 'false' }};
+    const dressType = '{{ product.dress_type }}';
+    let selectedSize = '';
+    let selectedAge = '';
+
+    if (isDress) {
+        const bookBtn = document.getElementById('book-now-btn');
+        const displayPrice = document.getElementById('display-price');
+        const baseUrl = '{{ url_for("customer.booking", product_id=product.id) }}';
+
+        if (dressType === 'adult') {
+            const sizeButtons = document.querySelectorAll('.size-btn');
+            const errorEl = document.getElementById('size-error');
+
+            sizeButtons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    sizeButtons.forEach(b => {
+                        b.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20', 'text-primary-600');
+                        b.classList.add('border-gray-200', 'dark:border-gray-700');
+                    });
+                    this.classList.remove('border-gray-200', 'dark:border-gray-700');
+                    this.classList.add('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20', 'text-primary-600');
+                    selectedSize = this.getAttribute('data-size');
+                    const price = parseFloat(this.getAttribute('data-price')).toFixed(2);
+                    displayPrice.innerHTML = '&#8377;' + price;
+                    errorEl.classList.add('hidden');
+                    bookBtn.href = baseUrl + '?size=' + selectedSize;
+                });
+            });
+
+            // Prevent booking without selection
+            bookBtn.addEventListener('click', function (e) {
+                if (!selectedSize) {
+                    e.preventDefault();
+                    errorEl.classList.remove('hidden');
+                    document.getElementById('size-buttons').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        } else if (dressType === 'child') {
+            const ageSelect = document.getElementById('age-select');
+            const errorEl = document.getElementById('age-error');
+
+            ageSelect.addEventListener('change', function () {
+                const option = this.options[this.selectedIndex];
+                selectedAge = this.value;
+                if (selectedAge) {
+                    const price = parseFloat(option.getAttribute('data-price')).toFixed(2);
+                    displayPrice.innerHTML = '&#8377;' + price;
+                    errorEl.classList.add('hidden');
+                    bookBtn.href = baseUrl + '?age=' + selectedAge;
+                }
+            });
+
+            bookBtn.addEventListener('click', function (e) {
+                if (!selectedAge) {
+                    e.preventDefault();
+                    errorEl.classList.remove('hidden');
+                    ageSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}
