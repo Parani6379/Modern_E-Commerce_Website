@@ -1,0 +1,196 @@
+================================================================================
+                    THE GIRLHUB - PROJECT SETUP GUIDE
+================================================================================
+
+This guide will help you set up and run the project on a new computer.
+
+
+================================================================================
+  1. PREREQUISITES
+================================================================================
+
+Install the following before proceeding:
+
+  • Python 3.10 or higher   → https://www.python.org/downloads/
+      ✔ During installation, CHECK "Add Python to PATH"
+  
+  • Git (optional)          → https://git-scm.com/downloads
+
+
+================================================================================
+  2. PROJECT SETUP (Step by Step)
+================================================================================
+
+Step 1: Open Terminal / Command Prompt
+--------------------------------------
+  - Windows: Search "cmd" or "PowerShell" in Start menu
+  - Navigate to the project folder:
+      cd path\to\girlhub
+
+
+Step 2: Create a Virtual Environment
+-------------------------------------
+  python -m venv venv
+
+
+Step 3: Activate the Virtual Environment
+-----------------------------------------
+  Windows (CMD):       venv\Scripts\activate
+  Windows (PowerShell): venv\Scripts\Activate.ps1
+  Mac/Linux:           source venv/bin/activate
+
+  You should see (venv) at the start of your terminal line.
+
+
+Step 4: Install Dependencies
+-----------------------------
+  pip install -r requirements.txt
+
+
+Step 5: Create the .env File
+-----------------------------
+  Copy the example file:
+    - Windows: copy .env.example .env
+    - Mac/Linux: cp .env.example .env
+
+  Then open .env in a text editor and fill in your details:
+
+    FLASK_APP=run.py
+    FLASK_ENV=development
+    SECRET_KEY=your-secret-key-here
+    
+    MAIL_SERVER=smtp.gmail.com
+    MAIL_PORT=587
+    MAIL_USE_TLS=True
+    MAIL_USERNAME=your-email@gmail.com
+    MAIL_PASSWORD=your-app-password
+    MAIL_DEFAULT_SENDER=your-email@gmail.com
+
+  NOTE: For Gmail, you need an "App Password" (not your regular password).
+        Go to: Google Account → Security → 2-Step Verification → App Passwords
+        Generate one and paste it as MAIL_PASSWORD.
+
+
+Step 6: Create the Admin Account
+---------------------------------
+  flask create-admin
+
+  You will be prompted to enter:
+    - Admin username
+    - Admin email
+    - Admin password (typed twice for confirmation)
+
+  Remember these credentials! You'll use them to log in.
+
+
+Step 7: Run the Application
+-----------------------------
+  python run.py
+
+  The app will start at: http://127.0.0.1:5000
+  Open this URL in your browser.
+
+
+================================================================================
+  3. FIRST-TIME USAGE
+================================================================================
+
+  1. Open http://127.0.0.1:5000 in your browser
+  2. Click "Login" (top-right corner)
+  3. Enter the admin email and password you created in Step 6
+  4. You'll be taken to the Admin Panel
+
+  From the Admin Panel you can:
+    • Add categories (e.g. Saree, Dress, Jewellery)
+    • Add products under those categories
+    • Manage orders, expenses, and users
+    • Update site settings (name, logo, Instagram link)
+
+
+================================================================================
+  4. DAILY USAGE
+================================================================================
+
+  To start the app each day:
+
+    1. Open Terminal / Command Prompt
+    2. Navigate to the project folder: cd path\to\girlhub
+    3. Activate virtual environment: venv\Scripts\activate
+    4. Run: python run.py
+    5. Open http://127.0.0.1:5000
+
+
+  To stop the app:
+    Press Ctrl + C in the terminal.
+
+
+================================================================================
+  5. PROJECT STRUCTURE
+================================================================================
+
+  girlhub/
+  ├── app/                    ← Main application code
+  │   ├── admin/              ← Admin panel (categories, products, orders)
+  │   ├── auth/               ← Login & registration
+  │   ├── customer/           ← Customer-facing pages
+  │   ├── email/              ← Email notification service
+  │   ├── static/             ← CSS, JS, images, uploads
+  │   ├── templates/          ← HTML templates
+  │   ├── config.py           ← App configuration
+  │   ├── models.py           ← Database models
+  │   └── extensions.py       ← Flask extensions
+  ├── instance/               ← Database file (auto-created)
+  ├── .env                    ← Your environment variables (DO NOT SHARE)
+  ├── .env.example            ← Template for .env
+  ├── requirements.txt        ← Python packages list
+  ├── run.py                  ← Entry point to start the app
+  └── README.md               ← Owner's guide for using the admin panel
+
+
+================================================================================
+  6. IMPORTANT NOTES
+================================================================================
+
+  • The database (instance/girlhub.db) is auto-created on first run.
+  • Uploaded images are stored in app/static/uploads/.
+  • NEVER share your .env file — it contains sensitive passwords.
+  • The SECRET_KEY in .env should be a long random string for production.
+  • For production deployment, use gunicorn instead of python run.py:
+      gunicorn -w 4 -b 0.0.0.0:5000 "app:create_app()"
+
+
+================================================================================
+  7. TROUBLESHOOTING
+================================================================================
+
+  Problem: "python" is not recognized
+  Fix:     Reinstall Python and check "Add Python to PATH"
+
+  Problem: pip install fails
+  Fix:     Make sure virtual environment is activated (you see "(venv)")
+
+  Problem: Email notifications not working
+  Fix:     Check .env email settings. Ensure you're using a Gmail App Password.
+           Enable 2-Step Verification in Google Account first.
+
+  Problem: "Address already in use" error
+  Fix:     Another app is using port 5000. Either close it or run:
+           python run.py  (it will auto-pick port 5000)
+           Or change the port in run.py: app.run(debug=True, port=8000)
+
+  Problem: Database errors after code changes
+  Fix:     Delete instance/girlhub.db and restart the app.
+           Then re-create your admin: flask create-admin
+
+
+================================================================================
+  8. CONTACT & SUPPORT
+================================================================================
+
+  If you encounter any issues, contact the developer who provided
+  this project to you.
+
+
+================================================================================
+                              Happy Selling! 🌸
+================================================================================

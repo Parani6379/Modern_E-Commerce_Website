@@ -4,6 +4,17 @@ Welcome to **The Ecom**! This guide will help you manage your online store.
 
 ---
 
+## 👑 How to Create an Admin Account
+
+If you don't have an admin account yet, you can create one easily using the terminal:
+
+1. Open your terminal in the project folder
+2. Run the command: `flask create-admin`
+3. Enter your desired **username**, **email**, and **password** when prompted
+4. Your admin account is now ready to use!
+
+---
+
 ## 🔑 How to Log In
 
 1. Open your website in a browser

@@ -1,11 +1,13 @@
 import os
+from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(os.path.dirname(basedir), '.env'))
 
 
 class Config:
     # ── Core ──────────────────────────────────────────────
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'girlhub-secret-key-change-in-production')
+    SECRET_KEY = os.environ.get('SECRET_KEY')
 
     # ── Database ──────────────────────────────────────────
     SQLALCHEMY_DATABASE_URI = os.environ.get(
@@ -22,13 +24,13 @@ class Config:
     # ── Flask-Mail (Gmail SMTP) ───────────────────────────
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
     MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
-    MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'thegirlhub.handcrafted@gmail.com')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'jmthbktyriudnkyl')
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'thegirlhub.handcrafted@gmail.com')
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'True').lower() in ['true', '1', 't']
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER')
 
     # ── Owner email (receives order notifications) ────────
-    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'thegirlhub.handcrafted@gmail.com')
+    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL')
 
     # ── Pagination ────────────────────────────────────────
     PRODUCTS_PER_PAGE = 12
